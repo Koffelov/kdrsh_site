@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KYDRASSH MC — Minecraft сервер</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --bg-2: #0d1a2d;
+      --panel: rgba(9, 23, 41, 0.78);
+      --panel-2: rgba(12, 30, 53, 0.86);
+      --card: rgba(11, 25, 44, 0.84);
+      --line: rgba(122, 190, 255, 0.22);
+      --line-strong: rgba(122, 190, 255, 0.45);
+      --text: #e8f4ff;
+      --muted: #93afd0;
+      --blue: #66b7ff;
+      --blue-2: #9ad4ff;
+      --cyan: #74e5ff;
+      --green: #57f0b2;
+      --yellow-bg: rgba(255, 210, 122, 0.08);
+      --yellow-line: rgba(255, 210, 122, 0.32);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top center, rgba(102, 183, 255, 0.12), transparent 28%),
+        linear-gradient(180deg, #07111d 0%, #081423 48%, #07111b 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(120, 180, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 180, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(rgba(120, 180, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 180, 255, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px, 44px 44px, 11px 11px, 11px 11px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.72));
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 16% 20%, rgba(116, 229, 255, 0.12), transparent 18%),
+        radial-gradient(circle at 84% 14%, rgba(102, 183, 255, 0.10), transparent 20%),
+        radial-gradient(circle at 50% 78%, rgba(87, 240, 178, 0.06), transparent 22%);
+      pointer-events: none;
+      z-index: -1;
+      animation: blueprintGlow 14s ease-in-out infinite alternate;
+    }
+
+    a { color: inherit; }
+
+    .container {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(6, 16, 28, 0.78);
+      border-bottom: 1px solid rgba(122, 190, 255, 0.12);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .brand-badge {
+      width: 230px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      background: transparent;
+      overflow: visible;
+      border: 0;
+      flex-shrink: 0;
+    }
+
+    .brand-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: left center;
+      display: block;
+      filter: drop-shadow(0 0 14px rgba(102, 183, 255, 0.14));
+      transition: transform 0.28s ease, filter 0.28s ease;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    nav a {
+      position: relative;
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color 0.22s ease, transform 0.22s ease;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -8px;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.22s ease;
+    }
+
+    nav a:hover {
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    nav a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .page {
+      display: none;
+      min-height: calc(100vh - 74px);
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .hero {
+      padding: 54px 0 26px;
+    }
+
+    .hero-wrap {
+      display: grid;
+      grid-template-columns: 1.06fr 0.94fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .hero-main,
+    .hero-side,
+    .section-card,
+    .info-card,
+    .rule-card,
+    .mods-card,
+    .ip-card,
+    .footer-card,
+    .notice-card,
+    .page-hero {
+      position: relative;
+      background: linear-gradient(180deg, rgba(12, 27, 48, 0.88), rgba(7, 18, 32, 0.92));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-main::before,
+    .hero-side::before,
+    .section-card::before,
+    .info-card::before,
+    .rule-card::before,
+    .mods-card::before,
+    .ip-card::before,
+    .footer-card::before,
+    .notice-card::before,
+    .page-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(122,190,255,0.07), transparent 18%),
+        linear-gradient(180deg, rgba(122,190,255,0.05), transparent 22%);
+      pointer-events: none;
+    }
+
+    .hero-main::after,
+    .hero-side::after,
+    .section-card::after,
+    .page-hero::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(122, 190, 255, 0.12);
+      border-radius: calc(var(--radius) - 8px);
+      pointer-events: none;
+    }
+
+    .hero-main,
+    .page-hero {
+      padding: 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(102, 183, 255, 0.08);
+      border: 1px solid rgba(102, 183, 255, 0.18);
+      color: var(--cyan);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(38px, 7vw, 72px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      text-transform: uppercase;
+    }
+
+    .accent {
+      color: var(--blue-2);
+      text-shadow: 0 0 16px rgba(154, 212, 255, 0.12);
+    }
+
+    .lead {
+      margin: 0 0 24px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 18px;
+      max-width: 740px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn,
+    .copy-btn,
+    .back-link {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-weight: 800;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-primary {
+      color: #03111c;
+      background: linear-gradient(180deg, var(--blue-2), var(--blue));
+      box-shadow: 0 14px 34px rgba(102,183,255,0.22);
+    }
+
+    .btn-secondary,
+    .copy-btn {
+      color: var(--text);
+      background: rgba(102, 183, 255, 0.06);
+      border: 1px solid rgba(102, 183, 255, 0.16);
+    }
+
+    .btn:hover,
+    .copy-btn:hover,
+    .back-link:hover {
+      transform: translateY(-2px);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(102,183,255,0.05);
+      border: 1px solid rgba(102,183,255,0.10);
+      animation: pulseShadow 5.2s ease-in-out infinite;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 23px;
+      margin-bottom: 6px;
+      color: var(--cyan);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .hero-side {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: space-between;
+    }
+
+    .logo-box {
+      position: relative;
+      min-height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(102,183,255,0.06), rgba(102,183,255,0.02)),
+        linear-gradient(90deg, rgba(122,190,255,0.06) 1px, transparent 1px),
+        linear-gradient(rgba(122,190,255,0.06) 1px, transparent 1px);
+      background-size: auto, 24px 24px, 24px 24px;
+      border: 1px solid rgba(102,183,255,0.14);
+      animation: softFloat 6s ease-in-out infinite;
+    }
+
+    .logo-box img {
+      max-width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.28));
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .side-box {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(6, 18, 32, 0.86);
+      border: 1px solid rgba(102,183,255,0.14);
+      color: #dbefff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      line-height: 1.8;
+      font-size: 14px;
+      animation: pulseShadow 6.5s ease-in-out infinite;
+    }
+
+    section {
+      padding: 14px 0;
+    }
+
+    .page section:first-child {
+      padding-top: 34px;
+    }
+
+    .section-card {
+      padding: 28px;
+    }
+
+    .section-head {
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .about-grid,
+    .ip-grid,
+    .rules-grid,
+    .mods-grid,
+    .footer-grid,
+    .page-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .about-grid,
+    .ip-grid,
+    .footer-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .rules-grid,
+    .mods-grid,
+    .page-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .info-card,
+    .rule-card,
+    .mods-card,
+    .ip-card,
+    .notice-card {
+      padding: 22px;
+    }
+
+    .info-card h3,
+    .rule-card h3,
+    .mods-card h3,
+    .ip-card h3,
+    .notice-card h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .info-card p,
+    .rule-card p,
+    .mods-card p,
+    .ip-card p,
+    .notice-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: rgba(87,240,178,0.09);
+      color: var(--green);
+      border: 1px solid rgba(87,240,178,0.16);
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      animation: pulseShadow 5.2s ease-in-out infinite;
+    }
+
+    .server-ip {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 16px;
+      word-break: break-word;
+      color: var(--blue-2);
+      line-height: 1.8;
+    }
+
+    .copy-wrap {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .copy-btn {
+      cursor: pointer;
+      border-radius: 14px;
+      padding: 12px 15px;
+      font-weight: 800;
+    }
+
+    .copy-note {
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+      min-height: 20px;
+      margin-top: 10px;
+    }
+
+    .rule-list,
+    .mods-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .rule-list li,
+    .mods-list li {
+      margin-bottom: 10px;
+    }
+
+    .notice-card {
+      background: linear-gradient(180deg, rgba(44, 31, 8, 0.74), rgba(22, 16, 4, 0.88));
+      border-color: var(--yellow-line);
+    }
+
+    .notice-card p,
+    .notice-card h3 {
+      color: #ffd994;
+    }
+
+    .discord-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(6, 18, 32, 0.92);
+      border: 1px solid rgba(102,183,255,0.14);
+      color: #e4f2ff;
+      animation: pulseShadow 6.8s ease-in-out infinite;
+    }
+
+    .discord-box a,
+    .footer-grid a,
+    .back-link {
+      color: var(--blue-2);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .discord-box a:hover,
+    .footer-grid a:hover {
+      text-decoration: underline;
+    }
+
+    .page-hero {
+      margin-bottom: 18px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    footer {
+      position: relative;
+      padding: 22px 0 40px;
+    }
+
+    .footer-card {
+      padding: 26px;
+    }
+
+    .footer-grid > div {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(102,183,255,0.05);
+      border: 1px solid rgba(102,183,255,0.12);
+    }
+
+    .footer-grid h4 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .footer-grid p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .twitch-fun-wrap {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      padding: 28px 0 18px;
+    }
+
+    .twitch-orbit {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      width: 420px;
+      height: 220px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orbit-item {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 52px;
+      height: 52px;
+      margin-left: -26px;
+      margin-top: -26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.25));
+      animation: orbitSpin 10s linear infinite;
+      transform-origin: 0 0;
+      opacity: 0.96;
+    }
+
+    .orbit-item.mango-1 { animation-duration: 8.8s; }
+    .orbit-item.mango-2 { animation-duration: 10.6s; animation-direction: reverse; }
+    .orbit-item.skull-1 { animation-duration: 9.4s; }
+    .orbit-item.skull-2 { animation-duration: 11.2s; animation-direction: reverse; }
+
+    .orbit-item.mango-1::before,
+    .orbit-item.mango-2::before,
+    .orbit-item.skull-1::before,
+    .orbit-item.skull-2::before {
+      display: block;
+      animation: orbitWobble 1.8s ease-in-out infinite;
+    }
+
+    .orbit-item.mango-1::before { content: "🥭"; }
+    .orbit-item.mango-2::before { content: "🥭"; }
+    .orbit-item.skull-1::before { content: "💀"; }
+    .orbit-item.skull-2::before { content: "💀"; }
+
+    .orbit-item.mango-1 { --orbit-x: 160px; --orbit-y: -54px; }
+    .orbit-item.mango-2 { --orbit-x: -158px; --orbit-y: -52px; }
+    .orbit-item.skull-1 { --orbit-x: 150px; --orbit-y: 58px; }
+    .orbit-item.skull-2 { --orbit-x: -150px; --orbit-y: 62px; }
+
+    .twitch-fun-button {
+      z-index: 1;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-width: 260px;
+      min-height: 68px;
+      padding: 16px 26px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #73d9ff 0%, #5cb7ff 40%, #57f0b2 100%);
+      color: #03111c;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      box-shadow: 0 22px 52px rgba(92, 183, 255, 0.24);
+      overflow: hidden;
+      transform-origin: center bottom;
+      animation: twitchFunBounce 2s ease-in-out infinite;
+    }
+
+    .twitch-fun-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent);
+      transform: translateX(-150%) skewX(-18deg);
+      animation: twitchFunShine 2.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .twitch-fun-button::after {
+      content: "🔥";
+      position: absolute;
+      right: 16px;
+      top: -10px;
+      font-size: 22px;
+      animation: twitchFunFire 1.4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .twitch-fun-button:hover {
+      animation: twitchFunHover 0.55s ease-in-out infinite;
+      box-shadow: 0 28px 66px rgba(92, 183, 255, 0.30);
+    }
+
+    .twitch-fun-button span {
+      display: inline-block;
+      font-size: 28px;
+      line-height: 1;
+      animation: twitchFunIcon 1.3s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+
+    .twitch-fun-button strong {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes blueprintGlow {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(0, -12px, 0) scale(1.04); }
+    }
+
+    @keyframes fadeUp {
+      0% {
+        opacity: 0;
+        transform: translateY(28px) scale(0.98);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes softFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes pulseShadow {
+      0%, 100% { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.20); }
+      50% { box-shadow: 0 26px 70px rgba(92, 183, 255, 0.12); }
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-140%) skewX(-18deg); }
+      100% { transform: translateX(220%) skewX(-18deg); }
+    }
+
+    @keyframes twitchFunBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+      15% { transform: translateY(-4px) rotate(-1deg) scale(1.01); }
+      30% { transform: translateY(0) rotate(1deg) scale(1); }
+      45% { transform: translateY(-8px) rotate(-1.5deg) scale(1.03); }
+      60% { transform: translateY(0) rotate(1deg) scale(1); }
+      75% { transform: translateY(-3px) rotate(-0.6deg) scale(1.01); }
+    }
+
+    @keyframes twitchFunHover {
+      0%, 100% { transform: translateY(-2px) rotate(0deg) scale(1.03); }
+      25% { transform: translateY(-6px) rotate(-2deg) scale(1.05); }
+      50% { transform: translateY(-2px) rotate(2deg) scale(1.04); }
+      75% { transform: translateY(-5px) rotate(-1.4deg) scale(1.05); }
+    }
+
+    @keyframes twitchFunIcon {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-10deg) scale(1.08); }
+      50% { transform: rotate(12deg) scale(1.14); }
+      75% { transform: rotate(-6deg) scale(1.06); }
+    }
+
+    @keyframes twitchFunShine {
+      0%, 100% { transform: translateX(-150%) skewX(-18deg); }
+      45%, 60% { transform: translateX(220%) skewX(-18deg); }
+    }
+
+    @keyframes twitchFunFire {
+      0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+      50% { transform: translateY(-6px) rotate(12deg) scale(1.12); }
+    }
+
+    @keyframes orbitSpin {
+      0% {
+        transform: rotate(0deg) translate(var(--orbit-x), var(--orbit-y)) rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg) translate(var(--orbit-x), var(--orbit-y)) rotate(-360deg);
+      }
+    }
+
+    @keyframes orbitWobble {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.08) rotate(-8deg); }
+      50% { transform: scale(0.96) rotate(8deg); }
+      75% { transform: scale(1.05) rotate(-4deg); }
+    }
+
+    .hero-main,
+    .hero-side,
+    .section-card,
+    .page-hero,
+    .rule-card,
+    .mods-card,
+    .info-card,
+    .ip-card,
+    .footer-grid > div,
+    .notice-card {
+      animation: fadeUp 0.75s ease both;
+    }
+
+    .hero-side { animation-delay: 0.12s; }
+    .section-card { animation-delay: 0.18s; }
+    .info-card:nth-child(1),
+    .ip-card:nth-child(1),
+    .footer-grid > div:nth-child(1) { animation-delay: 0.08s; }
+    .info-card:nth-child(2),
+    .ip-card:nth-child(2),
+    .footer-grid > div:nth-child(2) { animation-delay: 0.16s; }
+    .info-card:nth-child(3),
+    .ip-card:nth-child(3),
+    .footer-grid > div:nth-child(3) { animation-delay: 0.24s; }
+    .ip-card:nth-child(4) { animation-delay: 0.32s; }
+    .ip-card:nth-child(5) { animation-delay: 0.4s; }
+    .ip-card:nth-child(6) { animation-delay: 0.48s; }
+
+    .hero-main,
+    .hero-side,
+    .section-card,
+    .rule-card,
+    .mods-card,
+    .info-card,
+    .ip-card,
+    .footer-grid > div,
+    .page-hero,
+    .notice-card,
+    .footer-card {
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+    }
+
+    .hero-main:hover,
+    .hero-side:hover,
+    .section-card:hover,
+    .rule-card:hover,
+    .mods-card:hover,
+    .info-card:hover,
+    .ip-card:hover,
+    .footer-grid > div:hover,
+    .page-hero:hover,
+    .notice-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
+      border-color: var(--line-strong);
+    }
+
+    .logo-box::after,
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 42%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .logo-box:hover::after,
+    .btn-primary:hover::after {
+      opacity: 1;
+      animation: shimmer 0.9s ease;
+    }
+
+    .logo-box:hover img {
+      transform: scale(1.04);
+      filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.34));
+    }
+
+    .brand:hover .brand-badge img {
+      transform: translateY(-2px) scale(1.02);
+      filter: drop-shadow(0 10px 20px rgba(102, 183, 255, 0.22));
+    }
+
+    @media (max-width: 980px) {
+      .twitch-orbit {
+        width: 300px;
+        height: 170px;
+      }
+
+      .orbit-item {
+        width: 40px;
+        height: 40px;
+        margin-left: -20px;
+        margin-top: -20px;
+        font-size: 28px;
+      }
+
+      .orbit-item.mango-1 { --orbit-x: 112px; --orbit-y: -42px; }
+      .orbit-item.mango-2 { --orbit-x: -112px; --orbit-y: -42px; }
+      .orbit-item.skull-1 { --orbit-x: 108px; --orbit-y: 44px; }
+      .orbit-item.skull-2 { --orbit-x: -108px; --orbit-y: 46px; }
+
+      .twitch-fun-button {
+        min-width: 220px;
+        min-height: 60px;
+        font-size: 17px;
+        padding: 14px 20px;
+      }
+
+      .twitch-fun-button span {
+        font-size: 24px;
+      }
+
+      .brand-badge {
+        width: 170px;
+        height: 46px;
+      }
+
+      .hero-wrap,
+      .stats,
+      .about-grid,
+      .ip-grid,
+      .rules-grid,
+      .mods-grid,
+      .footer-grid,
+      .page-grid {
+        grid-template-columns: 1fr;
+      }
+
+      nav { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="На главную страницу">
+        <div class="brand-badge"><img src="https://i.imgur.com/PG7ehJ0.png" alt="Логотип KYDRASSH MC" /></div>
+      </a>
+      <nav>
+        <a href="#home">Главная</a>
+        <a href="#join">Как зайти</a>
+        <a href="#rules-page">Правила</a>
+        <a href="#mods-page">Моды</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div id="home-page" class="page active">
+      <section class="hero">
+        <div class="container hero-wrap">
+          <div class="hero-main">
+            <div class="eyebrow">✨ Minecraft сервер</div>
+            <h1>Добро пожаловать на <span class="accent">KYDRASSH MC</span></h1>
+            <p class="lead">
+              Атмосферный Minecraft сервер с комьюнити, удобными точками входа и всей важной информацией в одном месте.
+              Здесь можно быстро найти IP, правила, список модов, Discord, Telegram и Twitch сервера.
+            </p>
+
+            <div class="cta-row">
+              <a class="btn btn-primary" href="#join">Смотреть IP</a>
+              <a class="btn btn-secondary" href="#rules-page">Правила сервера</a>
+            </div>
+
+            <div class="stats">
+              <div class="stat">
+                <strong>Комьюнити</strong>
+                <span>Сервер с активным сообществом, ссылками и удобной навигацией</span>
+              </div>
+              <div class="stat">
+                <strong>Привилегии</strong>
+                <span>Оформляются только через тикет в Discord</span>
+              </div>
+              <div class="stat">
+                <strong>24/7</strong>
+                <span>Рабочие IP сервера доступны всегда</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="logo-box">
+              <img src="https://i.imgur.com/PG7ehJ0.png" alt="Логотип Kydrassh MC" />
+            </div>
+            <div class="side-box">
+              <div>Основной IP: kydrassh.sosal.today</div>
+              <div>Доп. IP: twitch.polit.games</div>
+              <div>Запасной: d28.joinserver.xyz:25803</div>
+              <div>Запасной: 65.108.21.199:25803</div>
+              <div>Discord: discord.gg/kdrsh</div>
+              <div>Telegram: @Minecraft_krdsh</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about">
+        <div class="container section-card">
+          <div class="section-head">
+            <h2>О сервере</h2>
+            <p>
+              Главная страница сервера с основными ссылками, IP, переходами на правила и моды,
+              а также быстрым доступом к Discord, Telegram и Twitch.
+            </p>
+          </div>
+
+          <div class="about-grid">
+            <article class="info-card">
+              <div class="pill">Сервер</div>
+              <h3>Удобный старт</h3>
+              <p>На сайте собраны основные точки входа: IP сервера, ссылки на сообщества и быстрые переходы по разделам.</p>
+            </article>
+            <article class="info-card">
+              <div class="pill">Привилегии</div>
+              <h3>Через Discord тикет</h3>
+              <p>Некоторые привилегии доступны платно, но оформляются только через тикет в Discord сервера.</p>
+            </article>
+            <article class="info-card">
+              <div class="pill">Навигация</div>
+              <h3>Отдельные страницы</h3>
+              <p>Правила и список запрещённых модов вынесены отдельно, чтобы главная страница была чище и удобнее.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="join">
+        <div class="container section-card">
+          <div class="section-head">
+            <h2>Как зайти на сервер</h2>
+            <p>Выбери любой рабочий IP, скопируй его и добавь в Minecraft Java Edition.</p>
+          </div>
+
+          <div class="ip-grid">
+            <article class="ip-card">
+              <h3>Основной IP</h3>
+              <p class="server-ip" id="serverIpMain">kydrassh.sosal.today</p>
+              <div class="copy-wrap">
+                <button class="copy-btn" onclick="copyIp('serverIpMain')">Скопировать</button>
+              </div>
+            </article>
+
+            <article class="ip-card">
+              <h3>Дополнительный IP</h3>
+              <p class="server-ip" id="serverIpAlt">twitch.polit.games</p>
+              <div class="copy-wrap">
+                <button class="copy-btn" onclick="copyIp('serverIpAlt')">Скопировать</button>
+              </div>
+            </article>
+
+            <article class="ip-card">
+              <h3>Запасной IP</h3>
+              <p class="server-ip" id="serverIpBackup1">d28.joinserver.xyz:25803</p>
+              <div class="copy-wrap">
+                <button class="copy-btn" onclick="copyIp('serverIpBackup1')">Скопировать</button>
+              </div>
+            </article>
+
+            <article class="ip-card">
+              <h3>Запасной IP</h3>
+              <p class="server-ip" id="serverIpBackup2">65.108.21.199:25803</p>
+              <div class="copy-wrap">
+                <button class="copy-btn" onclick="copyIp('serverIpBackup2')">Скопировать</button>
+              </div>
+            </article>
+
+            <article class="ip-card">
+              <h3>Правила сервера</h3>
+              <p>Полный список правил теперь открыт на отдельной странице для удобного чтения.</p>
+              <div class="copy-wrap">
+                <a class="btn btn-secondary" href="#rules-page">Открыть правила</a>
+              </div>
+            </article>
+
+            <article class="ip-card">
+              <h3>Запрещённые моды</h3>
+              <p>Все запрещённые модификации также вынесены на отдельную страницу.</p>
+              <div class="copy-wrap">
+                <a class="btn btn-secondary" href="#mods-page">Открыть список модов</a>
+              </div>
+            </article>
+          </div>
+
+          <div id="copyNote" class="copy-note"></div>
+        </div>
+      </section>
+
+      <footer id="contacts">
+        <div class="container footer-card">
+          <div class="section-head" style="margin-bottom:18px;">
+            <h2>Контакты и ссылки</h2>
+            <p>Все важные ссылки собраны в одном месте.</p>
+          </div>
+
+          <div class="footer-grid">
+            <div>
+              <h4>Discord</h4>
+              <p>Тикеты, связь с администрацией и покупка некоторых привилегий: <a href="https://discord.gg/kdrsh" target="_blank" rel="noopener noreferrer">discord.gg/kdrsh</a></p>
+            </div>
+            <div>
+              <h4>Telegram</h4>
+              <p>Телеграм-канал сервера: <a href="https://t.me/Minecraft_krdsh" target="_blank" rel="noopener noreferrer">t.me/Minecraft_krdsh</a></p>
+            </div>
+            <div>
+              <h4>Статус сервера</h4>
+              <p>На странице собраны основные ссылки сервера, контакты сообщества и быстрый доступ к важным разделам.</p>
+            </div>
+          </div>
+        </div>
+        <div class="twitch-fun-wrap">
+          <div class="twitch-orbit" aria-hidden="true">
+            <div class="orbit-item mango-1"></div>
+            <div class="orbit-item skull-1"></div>
+            <div class="orbit-item mango-2"></div>
+            <div class="orbit-item skull-2"></div>
+          </div>
+          <a class="twitch-fun-button" href="https://www.twitch.tv/kydrassh" target="_blank" rel="noopener noreferrer">
+            <span>🎮</span>
+            <strong>Смотреть Twitch</strong>
+          </a>
+        </div>
+      </footer>
+    </div>
+
+    <div id="rules-page" class="page">
+      <section>
+        <div class="container page-hero">
+          <a class="back-link" href="#home">← Назад на главную</a>
+          <div class="eyebrow">📜 Отдельная страница</div>
+          <h1>Правила <span class="accent">KYDRASSH MC</span></h1>
+          <p class="lead">Каждый игрок обязан соблюдать эти правила во время игры на сервере.</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="container section-card">
+          <div class="page-grid">
+            <article class="rule-card">
+              <h3>Основные правила</h3>
+              <ol class="rule-list">
+                <li><strong>1.1</strong> Если вы убили человека, вы должны возместить ему 4 части любой экипировки: меч, броню, кирку или топор.</li>
+                <li><strong>1.2</strong> Нельзя гриферить дома. Если вы поломали дом, вы обязаны его восстановить.</li>
+                <li><strong>1.3</strong> Нельзя убивать игроков без причины.</li>
+                <li><strong>1.4</strong> Воровство ресурсов запрещено.</li>
+              </ol>
+            </article>
+
+            <article class="rule-card">
+              <h3>Дополнительные правила</h3>
+              <ol class="rule-list" start="5">
+                <li><strong>1.5</strong> Критика администрации и проекта запрещена.</li>
+                <li><strong>1.6</strong> Нельзя продавать ресурсы за реальные деньги.</li>
+                <li><strong>1.7</strong> Запрещён спам в войсчат или в чат.</li>
+                <li><strong>1.8</strong> Каждый участник сервера должен соблюдать Условия использования, Правила сообщества платформы и Регламент Twitch.</li>
+              </ol>
+            </article>
+          </div>
+
+          <div class="notice-card" style="margin-top:16px;">
+            <h3>Важно</h3>
+            <p>Правила могут изменяться. Перед игрой желательно периодически проверять актуальную версию на сервере или в Discord.</p>
+          </div>
+
+          <div class="discord-box">
+            Если кто-то нарушил правила, можно написать тикет в Discord: <a href="https://discord.gg/kdrsh" target="_blank" rel="noopener noreferrer">https://discord.gg/kdrsh</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="mods-page" class="page">
+      <section>
+        <div class="container page-hero">
+          <a class="back-link" href="#home">← Назад на главную</a>
+          <div class="eyebrow">🧩 Отдельная страница</div>
+          <h1>Запрещённые <span class="accent">моды</span></h1>
+          <p class="lead">Нельзя использовать чит-модификации, автоматизацию действий и любые аналоги перечисленных ниже модов.</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="container section-card">
+          <div class="page-grid">
+            <article class="mods-card">
+              <h3>Общие запреты</h3>
+              <ul class="mods-list">
+                <li>Авто-тотем модификации любого вида.</li>
+                <li>Модификации, выполняющие действия за игрока, ИИ, принтер и подобные системы автоматизации.</li>
+                <li>Модификации, изменяющие стандартное визуальное поведение Minecraft под водой и лавой.</li>
+                <li>Чит-модификации любого вида.</li>
+                <li>X-ray модификации любого вида.</li>
+                <li>А также другие моды и программы, выполняющие функции запрещённых модификаций.</li>
+              </ul>
+            </article>
+
+            <article class="mods-card">
+              <h3>Список запрещённых модов</h3>
+              <ul class="mods-list">
+                <li>Accessible Step</li>
+                <li>Accurate Block Placement</li>
+                <li>AFKPeace</li>
+                <li>Aristois</li>
+                <li>Attack Through Grass</li>
+                <li>Auto Shulker Inventory Loader</li>
+                <li>AutoSwitch</li>
+                <li>Baritone</li>
+                <li>Bedrock Miner</li>
+                <li>Better PVP всех версий</li>
+                <li>BetterClicker</li>
+                <li>BetterHurtCam</li>
+                <li>Bridging Mod</li>
+                <li>ClientCommands</li>
+                <li>CMDCam</li>
+                <li>Double Hotbar</li>
+                <li>EasyPlaceFix</li>
+                <li>Elytra Swapper</li>
+                <li>Elytra Utilities</li>
+                <li>Fake Weather</li>
+                <li>FindMe</li>
+                <li>FlightAssistant</li>
+                <li>FreeCam</li>
+                <li>Impact</li>
+                <li>Inertia</li>
+                <li>Inventory Plus</li>
+                <li>Inventory Tabs</li>
+                <li>InvMove</li>
+                <li>ItemSwapper</li>
+                <li>Jello</li>
+                <li>LavaClearView</li>
+                <li>Librarian Trade Finder</li>
+                <li>LookAtPlayer</li>
+                <li>MidnightControlsExtra</li>
+                <li>MultiConnect</li>
+                <li>No Mining Cooldown</li>
+                <li>NoFog</li>
+                <li>NoHurtCam</li>
+                <li>Peek</li>
+                <li>SeedCracker</li>
+                <li>Sigma</li>
+                <li>Squake</li>
+                <li>Stack to Nearby Chests</li>
+                <li>Trajectory Preview</li>
+                <li>Tweakeroo</li>
+                <li>Wall-Jump</li>
+                <li>Wurst</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="notice-card" style="margin-top:16px;">
+            <h3>Разрешённые альтернативы для графики</h3>
+            <p>Вместо NoFog используйте Sodium Extra или OptiFine, если вам нужны визуальные настройки без нарушения правил сервера.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    function copyIp(id) {
+      const ip = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(ip).then(() => {
+        document.getElementById('copyNote').innerText = 'IP скопирован: ' + ip;
+      }).catch(() => {
+        document.getElementById('copyNote').innerText = 'Не удалось скопировать автоматически';
+      });
+    }
+
+    function renderPage() {
+      const hash = window.location.hash || '#home';
+      const pages = {
+        '#home': 'home-page',
+        '#about': 'home-page',
+        '#join': 'home-page',
+        '#contacts': 'home-page',
+        '#rules-page': 'rules-page',
+        '#mods-page': 'mods-page'
+      };
+
+      const pageId = pages[hash] || 'home-page';
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+
+      if (pageId === 'home-page') {
+        const targetId = hash.replace('#', '');
+        if (targetId && ['about', 'join', 'contacts'].includes(targetId)) {
+          setTimeout(() => {
+            const el = document.getElementById(targetId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 50);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    window.addEventListener('hashchange', renderPage);
+
+    window.addEventListener('load', () => {
+      renderPage();
+    });
+  </script>
+</body>
+</html>
